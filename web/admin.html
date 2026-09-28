@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:,">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miacis サイネージ管理</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <!-- 設定未完了画面 -->
+  <div id="configWarning" class="fullscreen-center hidden">
+    <div class="card message-card">
+      <h2>設定が必要です</h2>
+      <p><code>web/js/config.js</code> に Supabase の URL と anon key を設定してください。</p>
+    </div>
+  </div>
+
+  <!-- ログイン画面 -->
+  <div id="loginSection" class="fullscreen-center hidden">
+    <div class="card login-card">
+      <div class="logo">Miacis</div>
+      <h1>サイネージ管理ログイン</h1>
+      <form id="loginForm">
+        <!-- ブラウザが合言葉を覚えられるように、共用アカウントのメールを見えない欄に置く -->
+        <input type="text" id="adminEmail" class="visually-hidden" autocomplete="username" readonly tabindex="-1" aria-hidden="true">
+        <div class="form-group">
+          <label for="adminPassword">スタッフの合言葉</label>
+          <input type="password" id="adminPassword" required autocomplete="current-password">
+        </div>
+        <p class="help-text">このスマホ・PCで1回入れれば、次からは入れなくても開けます。</p>
+        <button type="submit" id="loginBtn" class="btn btn-primary">入る</button>
+        <p id="loginError" class="error-text hidden"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- 権限なし画面 -->
+  <div id="unauthorizedSection" class="fullscreen-center hidden">
+    <div class="card message-card">
+      <h2>権限がありません</h2>
+      <p>このページは編集者（editor）アカウントのみ利用可能です。</p>
+      <button id="unauthorizedLogoutBtn" class="btn btn-secondary">ログアウト</button>
+    </div>
+  </div>
+
+  <!-- メイン管理画面 -->
+  <div id="adminApp" class="app-layout hidden">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="logo-text">Miacis</span>
+        <span class="page-title">サイネージ管理</span>
+      </div>
+      <div class="header-actions">
+        <span id="currentUserName" class="user-name"></span>
+        <button id="viewDisplayBtn" class="btn btn-outline" title="別タブで開く">今日の表示を見る ↗</button>
+        <button id="logoutBtn" class="btn btn-text">ログアウト</button>
+      </div>
+    </header>
+
+    <!-- 通知バナー -->
+    <div id="notificationBanner" class="notification-banner hidden"></div>
+
+    <main class="app-main">
+      <!-- 新規アップロードセクション -->
+      <section class="admin-section upload-section">
+        <h2>スライドを載せる</h2>
+        <form id="uploadForm" class="upload-form">
+          <div class="form-group">
+            <label for="fileInput">ファイル（画像または動画。複数可）</label>
+            <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" required>
+            <p class="help-text">モニターは縦置きです。<strong>縦長 1080×1920（9:16）</strong>で作ると画面いっぱいに出ます（Canva ならカスタムサイズ 1080×1920 px）。画像: 長辺1920pxを超える場合は自動縮小。動画: mp4 / webm、50MBまで。</p>
+          </div>
+
+          <!-- 選択中ファイルの一覧と設定エリア -->
+          <div id="selectedFilesArea" class="selected-files-area hidden">
+            <h3>登録する内容</h3>
+            <div id="selectedFilesList" class="selected-files-list"></div>
+
+            <div class="upload-submit-row">
+              <button type="submit" id="uploadSubmitBtn" class="btn btn-primary">アップロードして登録</button>
+              <button type="button" id="uploadCancelBtn" class="btn btn-secondary">キャンセル</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- スライド一覧セクション -->
+      <section class="admin-section list-section">
+        <div class="list-header">
+          <h2>登録済みスライド</h2>
+          <button id="refreshListBtn" class="btn btn-outline btn-sm">更新</button>
+        </div>
+
+        <!-- 3つのタブまたはセクション -->
+        <div class="slide-groups">
+          <!-- いま流れている -->
+          <div class="slide-group">
+            <h3 class="group-title showing-title">
+              いま流れている
+              <span id="showingCount" class="badge">0</span>
+            </h3>
+            <div id="showingList" class="slide-card-list">
+              <p class="empty-text">現在表示中のスライドはありません</p>
+            </div>
+          </div>
+
+          <!-- これから -->
+          <div class="slide-group">
+            <h3 class="group-title upcoming-title">
+              これから（開始待ち）
+              <span id="upcomingCount" class="badge">0</span>
+            </h3>
+            <div id="upcomingList" class="slide-card-list">
+              <p class="empty-text">開始待ちのスライドはありません</p>
+            </div>
+          </div>
+
+          <!-- 終わったもの -->
+          <div class="slide-group">
+            <h3 class="group-title ended-title">
+              終わったもの
+              <span id="endedCount" class="badge">0</span>
+              <span class="sub-text">（終了日から30日で自動削除）</span>
+            </h3>
+            <div id="endedList" class="slide-card-list">
+              <p class="empty-text">終了したスライドはありません</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 編集モーダル -->
+  <dialog id="editModal" class="modal-dialog">
+    <div class="modal-content">
+      <h3>スライドの編集</h3>
+      <form id="editForm">
+        <input type="hidden" id="editSlideId">
+        <div class="form-group">
+          <label for="editTitle">タイトル</label>
+          <input type="text" id="editTitle" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="editStartsOn">開始日</label>
+            <input type="date" id="editStartsOn" required>
+          </div>
+          <div class="form-group col">
+            <label for="editEndsOn">終了日（当日を含む）</label>
+            <input type="date" id="editEndsOn" required>
+          </div>
+        </div>
+        <div class="form-group" id="editDurationGroup">
+          <label for="editDuration">表示秒数（画像のみ: 3〜60秒）</label>
+          <input type="number" id="editDuration" min="3" max="60" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">保存する</button>
+          <button type="button" id="editCancelBtn" class="btn btn-secondary">キャンセル</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

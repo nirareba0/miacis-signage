@@ -1,0 +1,13 @@
+{
+  "name": "miacis-signage",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.mjs' 'web/tests/**/*.test.mjs'",
+    "serve": "npx serve web"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.14"
+  }
+}

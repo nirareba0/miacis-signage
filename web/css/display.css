@@ -1,0 +1,252 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  user-select: none;
+}
+
+body.hide-cursor {
+  cursor: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 全画面中央配置コンテナ */
+.fullscreen-center {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #121212;
+  z-index: 100;
+  padding: 20px;
+}
+
+/* カード共通 */
+.message-card, .login-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 32px 40px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.login-card .logo {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #38bdf8;
+  margin-bottom: 8px;
+}
+
+.login-card h1 {
+  font-size: 20px;
+  margin-bottom: 24px;
+  color: #f3f4f6;
+}
+
+.form-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background-color: #27272a;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #38bdf8;
+}
+
+.btn-primary, .btn-secondary {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #0284c7;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0369a1;
+}
+
+.btn-secondary {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+.error-text {
+  color: #f87171;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* サイネージ表示コンテナ */
+.signage-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  overflow: hidden;
+}
+
+/* スライド表示レイヤー（クロスフェード） */
+.slide-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.slide-layer.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slide-media {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
+}
+
+/* 待機・0件時画面 */
+.standby-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  z-index: 5;
+}
+
+.standby-content {
+  text-align: center;
+}
+
+.standby-clock {
+  font-size: min(15vw, 120px);
+  font-weight: 200;
+  letter-spacing: 4px;
+  color: #e5e7eb;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 12px;
+}
+
+.standby-logo {
+  font-size: min(5vw, 40px);
+  font-weight: 600;
+  letter-spacing: 6px;
+  color: #6b7280;
+}
+
+/* 画面隅のステータス/エラー（小さく目立たないよう表示） */
+.corner-status {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  z-index: 50;
+  pointer-events: none;
+  max-width: 80vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* モニターを縦に置いたとき（?rotate=90 / 270）。画面全体を回し、縦長の画面として使う。
+   transform は右から効く: 左上を軸に回してから、はみ出した分を1画面ずらして戻す */
+html[data-rotate="90"] .signage-container,
+html[data-rotate="90"] .fullscreen-center,
+html[data-rotate="270"] .signage-container,
+html[data-rotate="270"] .fullscreen-center {
+  inset: auto;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  transform-origin: top left;
+}
+html[data-rotate="90"] .signage-container,
+html[data-rotate="90"] .fullscreen-center {
+  transform: translateX(100vw) rotate(90deg);
+}
+html[data-rotate="270"] .signage-container,
+html[data-rotate="270"] .fullscreen-center {
+  transform: translateY(100vh) rotate(-90deg);
+}
+/* 回したときは、画面の短い辺（= vw）ではなく長い辺に合わせて時計を大きくする */
+html[data-rotate="90"] .standby-clock,
+html[data-rotate="270"] .standby-clock { font-size: min(15vh, 120px); }
+html[data-rotate="90"] .standby-logo,
+html[data-rotate="270"] .standby-logo { font-size: min(5vh, 40px); }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: -4px 0 16px;
+}

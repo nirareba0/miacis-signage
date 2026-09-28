@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:,">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miacis 館内サイネージ</title>
+  <link rel="stylesheet" href="css/display.css">
+</head>
+<body>
+  <!-- 設定未完了時のメッセージ -->
+  <div id="configWarning" class="fullscreen-center hidden">
+    <div class="message-card">
+      <h2>設定が必要です</h2>
+      <p><code>web/js/config.js</code> に Supabase の URL と anon key を設定してください。</p>
+    </div>
+  </div>
+
+  <!-- ログイン画面（初回のみ） -->
+  <div id="loginSection" class="fullscreen-center hidden">
+    <div class="login-card">
+      <div class="logo">Miacis</div>
+      <h1>表示端末の準備</h1>
+      <form id="loginForm">
+        <input type="text" id="loginEmail" class="visually-hidden" autocomplete="username" readonly tabindex="-1" aria-hidden="true">
+        <div class="form-group">
+          <label for="loginPassword">表示端末の合言葉</label>
+          <input type="password" id="loginPassword" required autocomplete="current-password">
+        </div>
+        <p class="hint-text">最初の1回だけ。次からは入れなくても流れ始めます。</p>
+        <button type="submit" id="loginButton" class="btn-primary">流し始める</button>
+        <p id="loginError" class="error-text hidden"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- 権限なし画面 -->
+  <div id="unauthorizedSection" class="fullscreen-center hidden">
+    <div class="message-card">
+      <h2>権限がありません</h2>
+      <p>このアカウントにはサイネージの閲覧権限がありません。</p>
+      <button id="logoutButton" class="btn-secondary">ログアウト</button>
+    </div>
+  </div>
+
+  <!-- サイネージ表示画面 -->
+  <div id="signageContainer" class="signage-container hidden">
+    <!-- クロスフェード用 2レイヤー -->
+    <div id="layerA" class="slide-layer layer-a"></div>
+    <div id="layerB" class="slide-layer layer-b"></div>
+
+    <!-- 0件時／待機時画面 -->
+    <div id="standbyScreen" class="standby-screen hidden">
+      <div class="standby-content">
+        <div id="standbyClock" class="standby-clock">--:--</div>
+        <div class="standby-logo">Miacis</div>
+      </div>
+    </div>
+
+    <!-- 画面隅のエラー/ステータス表示（小さく表示し、再生を止めない） -->
+    <div id="cornerStatus" class="corner-status hidden"></div>
+  </div>
+
+  <script type="module" src="js/display.js"></script>
+</body>
+</html>
