@@ -40,18 +40,18 @@ export function daysBetween(fromStr, toStr) {
 export function expiredForPurge(slides, today, days = 30) {
   if (!Array.isArray(slides)) return [];
   return slides.filter((slide) => {
-    if (!slide || !slide.ends_on) return false;
+    if (!slide || !slide.ends_on) return false; // 期限なしは消さない
     return daysBetween(slide.ends_on, today) > days;
   });
 }
 
 /**
- * 今日の日付から、新規スライドの既定の期間（今日〜今日+13日）を返す
+ * 今日の日付から、新規スライドの既定の期間（今日から・期限なし）を返す
  */
 export function defaultDates(today) {
   return {
     starts_on: today,
-    ends_on: addDays(today, 13),
+    ends_on: null, // 既定は期限なし。入れたときだけその日まで
   };
 }
 

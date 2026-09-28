@@ -71,7 +71,7 @@
           <div class="form-group">
             <label for="fileInput">ファイル（画像または動画。複数可）</label>
             <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" required>
-            <p class="help-text">モニターは縦置きです。<strong>縦長 1080×1920（9:16）</strong>で作ると画面いっぱいに出ます（Canva ならカスタムサイズ 1080×1920 px）。画像: 長辺1920pxを超える場合は自動縮小。動画: mp4 / webm、50MBまで。</p>
+            <p class="help-text">終了日を空欄にすると期限なしでずっと流れます。モニターは縦置きです。<strong>縦長 1080×1920（9:16）</strong>で作ると画面いっぱいに出ます（Canva ならカスタムサイズ 1080×1920 px）。画像: 長辺1920pxを超える場合は自動縮小。動画: mp4 / webm、50MBまで。</p>
           </div>
 
           <!-- 選択中ファイルの一覧と設定エリア -->
@@ -151,7 +151,8 @@
           </div>
           <div class="form-group col">
             <label for="editEndsOn">終了日（当日を含む）</label>
-            <input type="date" id="editEndsOn" required>
+            <input type="date" id="editEndsOn">
+            <small class="help-text">空欄なら期限なし（ずっと流す）</small>
           </div>
         </div>
         <div class="form-group" id="editDurationGroup">

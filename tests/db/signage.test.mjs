@@ -301,3 +301,17 @@ test('migration は2回流しても落ちない（本番へ流し直せる）', 
   const { rows } = await db.query(`select count(*)::int as n from pg_policies where policyname like 'signage_%'`);
   assert.equal(rows[0].n, 9); // members 1 + slides 4 + storage 4
 });
+
+test('終了日は空（期限なし）で入れられる。開始日より前の終了日は今までどおり拒否', async () => {
+  const db = await createTestDb();
+  const editorId = crypto.randomUUID();
+  await createMember(db, editorId, 'editor', 'スタッフ');
+  await asUser(db, editorId, async () => {
+    await db.query(`insert into public.signage_slides (title, kind, storage_path, starts_on, ends_on)
+      values ('ずっと', 'image', 'slides/forever.jpg', '2026-09-28', null)`);
+    const { rows } = await db.query(`select ends_on from public.signage_slides where title = 'ずっと'`);
+    assert.equal(rows[0].ends_on, null);
+    await assert.rejects(db.query(`insert into public.signage_slides (title, kind, storage_path, starts_on, ends_on)
+      values ('逆', 'image', 'slides/x.jpg', '2026-09-28', '2026-09-01')`), /check constraint/);
+  });
+});

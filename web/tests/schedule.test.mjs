@@ -39,3 +39,11 @@ test('pickSlides: 元の配列を変えない・空なら空', () => {
   assert.deepEqual(list, copy);
   assert.deepEqual(pickSlides([], '2026-09-23'), []);
 });
+
+test('終了日が空（null）なら期限なし: 開始日からずっと出る', () => {
+  const x = s('forever', '2026-09-20', null);
+  assert.equal(slideStatus(x, '2026-09-19'), 'upcoming');
+  assert.equal(slideStatus(x, '2026-09-20'), 'showing');
+  assert.equal(slideStatus(x, '2030-01-01'), 'showing');
+  assert.deepEqual(pickSlides([x, s('ended', '2026-09-01', '2026-09-10')], '2027-05-05').map(y => y.id), ['forever']);
+});

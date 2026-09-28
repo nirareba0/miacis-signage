@@ -251,7 +251,8 @@ function renderSelectedFiles() {
         </div>
         <div class="form-group col">
           <label>終了日</label>
-          <input type="date" class="input-ends" data-index="${index}" value="${esc(item.ends_on)}" required>
+          <input type="date" class="input-ends" data-index="${index}" value="${esc(item.ends_on || '')}">
+          <small class="help-text">空欄なら期限なし（ずっと流す）</small>
         </div>
         ${item.kind === 'image' ? `
         <div class="form-group col">
@@ -281,7 +282,7 @@ function renderSelectedFiles() {
   selectedFilesList.querySelectorAll('.input-ends').forEach(input => {
     input.addEventListener('change', (e) => {
       const idx = Number(e.target.dataset.index);
-      selectedFilesData[idx].ends_on = e.target.value;
+      selectedFilesData[idx].ends_on = e.target.value || null;
     });
   });
   selectedFilesList.querySelectorAll('.input-duration').forEach(input => {
@@ -302,7 +303,7 @@ async function handleUploadSubmit(e) {
       alert(`動画エラー: ${esc(item.file.name)}\n${item.videoError}`);
       return;
     }
-    if (item.starts_on > item.ends_on) {
+    if (item.ends_on && item.starts_on > item.ends_on) {
       alert(`「${item.title}」の開始日が終了日より後になっています。`);
       return;
     }
@@ -343,7 +344,7 @@ async function handleUploadSubmit(e) {
           kind: item.kind,
           storage_path: storagePath,
           starts_on: item.starts_on,
-          ends_on: item.ends_on,
+          ends_on: item.ends_on || null,
           duration_sec: item.kind === 'image' ? (item.duration_sec || 10) : 10,
         });
       } catch (insertErr) {
@@ -479,7 +480,7 @@ function renderGroup(container, list, emptyMessage) {
     titleEl.title = slide.title;
     titleRow.append(titleEl, el('span', 'slide-kind-badge', slide.kind === 'image' ? '画像' : '動画'));
     const meta = el('div', 'slide-meta');
-    meta.append(el('span', '', `📅 ${slide.starts_on} 〜 ${slide.ends_on}`));
+    meta.append(el('span', '', `📅 ${slide.starts_on} 〜 ${slide.ends_on || '期限なし'}`));
     if (slide.kind === 'image') meta.append(el('span', '', `⏱ ${slide.duration_sec}秒`));
     info.append(titleRow, meta);
     card.appendChild(info);
@@ -516,7 +517,7 @@ function openEditModal(slide) {
   editSlideId.value = slide.id;
   editTitle.value = slide.title;
   editStartsOn.value = slide.starts_on;
-  editEndsOn.value = slide.ends_on;
+  editEndsOn.value = slide.ends_on || '';
 
   if (slide.kind === 'image') {
     editDuration.value = slide.duration_sec;
@@ -534,9 +535,9 @@ async function handleEditSubmit(e) {
 
   const title = editTitle.value.trim();
   const starts_on = editStartsOn.value;
-  const ends_on = editEndsOn.value;
+  const ends_on = editEndsOn.value || null; // 空欄は期限なし
 
-  if (starts_on > ends_on) {
+  if (ends_on && starts_on > ends_on) {
     alert('開始日は終了日以前の日付を指定してください。');
     return;
   }

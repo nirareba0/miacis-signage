@@ -15,14 +15,15 @@ export function todayInTokyo(now = new Date()) {
  */
 export function slideStatus(slide, today) {
   if (today < slide.starts_on) return 'upcoming';
-  if (today > slide.ends_on) return 'ended'; // 終了日はその日の終わりまで出す
+  // 終了日が空なら期限なし（ずっと流す）。入っていればその日の終わりまで出す
+  if (slide.ends_on && today > slide.ends_on) return 'ended';
   return 'showing';
 }
 
 /**
  * 今日流すスライドを、流す順に並べて返す。元の配列は変えない。
  * 並べ方は日付順（本人の指示 2026-09-28）: 開始日の早いもの → 同じなら先に載せたもの。
- * @param {Array<{id:string, starts_on:string, ends_on:string, created_at:string}>} slides
+ * @param {Array<{id:string, starts_on:string, ends_on:string|null, created_at:string}>} slides
  * @param {string} today 'YYYY-MM-DD'（日本時間）
  * @returns {Array} 流す順のスライド
  */

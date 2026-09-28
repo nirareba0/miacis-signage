@@ -23,8 +23,11 @@ echo "1/3 英単語バトル側の権限を控える"
 BEFORE="$(fp)"
 [ -n "$BEFORE" ] || { echo "  控えを取れませんでした（npx supabase login を確かめてください）"; exit 1; }
 
-echo "2/3 サイネージの表・権限・ストレージを入れる"
-"${CLI[@]}" db query --linked --project-ref "$REF" -f supabase/migrations/0001_signage.sql >/dev/null
+echo "2/3 サイネージの表・権限・ストレージを入れる（migrations を番号順に。どれも何度流してもよい）"
+for f in supabase/migrations/*.sql; do
+  echo "  $f"
+  "${CLI[@]}" db query --linked --project-ref "$REF" -f "$f" >/dev/null
+done
 
 echo "3/3 英単語バトル側が変わっていないか比べる"
 AFTER="$(fp)"

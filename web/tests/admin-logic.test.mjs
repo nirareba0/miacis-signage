@@ -56,10 +56,10 @@ test('expiredForPurge: 終了日から30日過ぎたスライドだけを抽出'
   assert.deepEqual(ids, ['2', '3']);
 });
 
-test('defaultDates: 今日から13日後（計14日間）を返す', () => {
+test('defaultDates: 今日から・期限なし', () => {
   assert.deepEqual(defaultDates('2026-09-28'), {
     starts_on: '2026-09-28',
-    ends_on: '2026-10-11',
+    ends_on: null,
   });
 });
 
@@ -68,4 +68,9 @@ test('cleanFileNameTitle: 拡張子の除去', () => {
   assert.equal(cleanFileNameTitle('event.preview.2026.mp4'), 'event.preview.2026');
   assert.equal(cleanFileNameTitle('README'), 'README');
   assert.equal(cleanFileNameTitle(''), '');
+});
+
+test('expiredForPurge: 期限なしのものは何年たっても消さない', () => {
+  const list = [{ id: 'forever', ends_on: null, storage_path: 'a' }, { id: 'old', ends_on: '2026-01-01', storage_path: 'b' }];
+  assert.deepEqual(expiredForPurge(list, '2030-01-01').map(x => x.id), ['old']);
 });
